@@ -25,7 +25,7 @@ public:
         clear();
     }
 
-    CyclicList(CyclicList& oth) {
+    CyclicList(const CyclicList& oth) {
         if (oth.empty()) {
             return;
         }
@@ -38,12 +38,13 @@ public:
         }
     }
 
-    CyclicList& operator=(CyclicList& oth) {
+    CyclicList& operator=(const CyclicList& oth) {
         if (this == &oth) {
             return *this;
         }
 
         clear();
+
 
         if (oth.empty()) {
             return *this;
@@ -53,10 +54,10 @@ public:
         head->next = head;
         size_++;
         curr = curr->next;
-        do {
+        while (curr != oth.head) {
             push_back(curr->data);
             curr = curr->next;
-        } while (curr != oth.head);
+        }
         return *this;
     }
 
@@ -67,14 +68,14 @@ public:
     void clear() {
         if (size_ == 0) return;
 
-        Node* curr = head;
-        Node* nextCurr;
+        Node* curr = head->next;
 
-        do {
-            nextCurr = curr->next;
-            delete curr;
-            curr = nextCurr;
-        } while (curr != head);
+        while (curr != head) {
+            Node* kal = curr;
+            curr = curr->next;
+            delete kal;
+        }
+        delete head;
         head = nullptr;
         size_ = 0;
     }
@@ -120,30 +121,43 @@ public:
         if (empty()) {
             throw std::out_of_range("List is empty");
         }
-
-        Node* curr = head;
-        do {
-            curr = curr->next;
-        } while (curr->next->next != head);
-        delete curr->next;
-        curr->next = head;
         size_--;
 
+        if (size_ == 0) {
+            delete head;
+            head = nullptr;
+        }
+        else {
+            Node* curr = head;
+            while (curr->next->next != head) {
+                curr = curr->next;
+            }
+            delete curr->next;
+            curr->next = head;
+        }
     }
 
     void pop_front() {
         if (empty()) {
             throw std::out_of_range("List is empty");
         }
-
-        Node* curr = head;
-        do {
-            curr = curr->next;
-        } while (curr->next != head);
-        head = head->next;
-        delete curr->next;
-        curr->next = head;
         size_--;
+
+        if (size_ == 0) {
+            delete head;
+            head = nullptr;
+        }
+        else {
+            Node* curr = head;
+            while (curr->next != head) {
+                curr = curr->next;
+            }
+            Node* kal = head;
+            head = head->next;
+            curr->next = head;
+
+            delete kal;
+        }
     }
 
 
@@ -245,24 +259,37 @@ public:
 
 
     void sort(const bool reverse = false) {
-        if (empty()) {
+        if (empty() || size_ == 1) {
             return;
         }
 
         bool swapped;
         Node* curr;
 
+
         do {
             swapped = false;
             curr = head;
 
-            do {
-                if ((!reverse) == (curr->data > curr->next->data)) {
-                    std::swap(curr->data, curr->next->data);
+            for (size_t i = 0; i < size_ - 1; i++) {
+                Node* next_node = curr->next;
+                bool should_swap = false;
+                if (!reverse) {
+                    if (curr->data > next_node->data) {
+                        should_swap = true;
+                    }
+                }
+                else {
+                    if (curr->data < next_node->data) {
+                        should_swap = true;
+                    }
+                }
+                if (should_swap) {
+                    std::swap(curr->data, next_node->data);
                     swapped = true;
                 }
                 curr = curr->next;
-            } while (curr->next != head);
+            }
         } while (swapped);
     }
 
@@ -276,7 +303,7 @@ public:
         Node* s = head->next;
         Node* t = head->next->next;
         do {
-            s->next = std::move(f);
+            s->next = f;
             f = s;
             s = t;
             t = s->next;
