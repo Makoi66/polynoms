@@ -246,27 +246,26 @@ public:
 		this->terms.clear();
 		if (oth.empty()) return *this;
 
-		std::cout << oth << std::endl;
+		//std::cout << oth << std::endl;
 		float r = 0.0f;
+		bool touch = false;
 		std::vector<int> p = { 0, 0, 0 };
-		bool is_pow = false;
 		size_t c = 0;
 		std::string number;
 		int last_pow = -1;
 		for (size_t j = 0; j < oth.size(); j++) {
 			//std::cout << i << std::endl;
-			if (isspace(oth[j]) || oth[j] == '^') continue;
+			if (isspace(oth[j]) || oth[j] == '^' || oth[j] == '*') continue;
 			if (isdigit(oth[j]) || oth[j] == '.') {
-				std::cout << "1if " << oth[j] << std::endl;
+				//std::cout << "1if " << oth[j] << std::endl;
 				number += oth[j];
-				std::cout << "??? " << number << std::endl;
+				//std::cout << "??? " << number << std::endl;
 			}
 			else if (oth[j] == 'x' || oth[j] == 'y' || oth[j] == 'z') {
-				if (r == 0.0f) r = 1;
 				if (!number.empty() && last_pow != -1) {
-					std::cout << "??? " << number << std::endl;
+					//std::cout << "??? " << number << std::endl;
 					p[last_pow] = std::stoi(number);
-					std::cout << "&&& " << number << std::endl;
+					//std::cout << "&&& " << number << std::endl;
 					number.clear();
 				}
 				switch (oth[j]) {
@@ -286,31 +285,40 @@ public:
 						break;
 					}
 				}
-				std::cout << "???rrr " << oth[j] << number << std::endl;
-				if (!number.empty()) {
-					if (number == "-") r = -1;
+				//std::cout << "???rrr " << oth[j] << number << std::endl;
+				if (!number.empty() && !touch) {
+					if (number == "-") r = -1.0f;
 					else r = std::stof(number);
+					touch = true;
 				}
-				std::cout << "???www " << oth[j] << number << std::endl;
-				is_pow = true;
+				if (!touch) { r = 1.0f; touch = true; }
+				//std::cout << "???www " << oth[j] << number << std::endl;
 				number.clear();
 			}
 			else if (ispunct(oth[j])) {
-				if (!number.empty()) r = std::stof(number);
+				if (!number.empty() && number != "-") {
+					if (last_pow == -1) r = std::stof(number);
+					else p[last_pow] = std::stoi(number);
+				}
 				this->addMonom(Monom(r, p));
 				r = 0.0f;
 				p = { 0, 0, 0 };
-				number.clear();
-				if (oth[j] == '-') number += '-';
-				is_pow = false;
+				if (oth[j] == '-' && number != "-") {
+					number.clear(); number += '-';
+				}
+				else number.clear();
 				last_pow = -1;
+				touch = false;
 			}
 		}
 
-		if (!number.empty()) r = std::stof(number);
+		if (!number.empty() && number != "-") {
+			if (last_pow == -1) r = std::stof(number);
+			else p[last_pow] = std::stoi(number);
+		}
 		this->addMonom(Monom(r, p));
 
-		std::cout << "print " << *this << std::endl;
+		//std::cout << "print " << *this << std::endl;
 		return *this;
 	}
 
