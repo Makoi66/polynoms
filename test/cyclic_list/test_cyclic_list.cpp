@@ -1,5 +1,5 @@
-#include "tcyclic_list.h"
-#include "tpolynoms.h"
+#include "cyclic_list.h"
+#include "polynoms.h"
 
 #include <gtest.h>
 
