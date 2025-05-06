@@ -9,17 +9,24 @@ set(CMAKE_BUILD_TYPE Debug)
 
 file(GLOB polynoms_hdrs "include/polynoms/*.h")
 file(GLOB polynoms_srcs "include/polynoms/*.cpp")
+file(GLOB cyclic_list_hdrs "include/cyclic_list/*.h")
+file(GLOB cyclic_list_srcs "include/cyclic_list/*.cpp")
+file(GLOB map_hdrs "include/map/*.h")
+file(GLOB map_srcs "include/map/*.cpp")
 file(GLOB main_srcs "src/main.cpp")
 
-add_library(cyclic_list INTERFACE)
-target_include_directories(cyclic_list INTERFACE include/cyclic_list)
+add_library(cyclic_list ${cyclic_list_hdrs} ${cyclic_list_srcs})
+target_include_directories(cyclic_list PUBLIC include/cyclic_list)
+
+add_library(map ${map_hdrs} ${map_srcs})
+target_include_directories(map PUBLIC include/map)
 
 add_library(polynoms ${polynoms_srcs} ${polynoms_hdrs})
 target_include_directories(polynoms PUBLIC include/polynoms)
 target_link_libraries(polynoms PUBLIC cyclic_list)
 
 add_executable(main ${main_srcs})
-target_link_libraries(main PRIVATE cyclic_list polynoms)
+target_link_libraries(main PRIVATE cyclic_list polynoms map)
 
 include(CTest)
 enable_testing()
@@ -37,9 +44,18 @@ if (BUILD_TESTING)
 			target_link_libraries(gtest INTERFACE ${pthread})
 	endif()
 
-	file(GLOB_RECURSE tests_files "test/*.cpp")
-	add_executable(polynoms_test ${tests_files})
-	target_link_libraries(polynoms_test PRIVATE gtest cyclic_list polynoms) 
+	file(GLOB main_tests_file "test/*.cpp")
+	file(GLOB_RECURSE cyclic_list_tests_files "test/cyclic_list/*.cpp")
+	file(GLOB_RECURSE polynoms_tests_files "test/polynoms/*.cpp")
+	file(GLOB_RECURSE map_tests_files "test/map/*.cpp")
+	source_group("Source Files/cyclic_list" FILES ${cyclic_list_tests_files})
+
+	source_group("Source Files/polynoms" FILES ${polynoms_tests_files})
+	
+	source_group("Source Files/map" FILES ${map_tests_files})
+	add_executable(polynoms_test ${main_tests_file} ${cyclic_list_tests_files} ${polynoms_tests_files} ${map_tests_files})
+
+	target_link_libraries(polynoms_test PRIVATE gtest cyclic_list polynoms map) 
 
 else()
 	message(STATUS "Skipping tests")
