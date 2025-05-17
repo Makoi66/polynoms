@@ -38,11 +38,11 @@ public:
 			return tmp;
 		}
 
-		friend bool operator== (const Iterator& it1, const Iterator& it2) {
+		friend bool operator==(const Iterator& it1, const Iterator& it2) {
 			return it1.curr == it2.curr;
 		}
 
-		friend bool operator!= (const Iterator& it1, const Iterator& it2) {
+		friend bool operator!=(const Iterator& it1, const Iterator& it2) {
 			return it1.curr != it2.curr;
 		}
 
