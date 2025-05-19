@@ -17,6 +17,8 @@ file(GLOB tree_hdrs "include/tree/*.h")
 file(GLOB tree_srcs "include/tree/*.cpp")
 file(GLOB hash_hdrs "include/hash/*.h")
 file(GLOB hash_srcs "include/hash/*.cpp")
+file(GLOB trans_hdrs "include/trans/*.h")
+file(GLOB trans_srcs "include/trans/*.cpp")
 file(GLOB main_srcs "src/main.cpp")
 
 add_library(cyclic_list ${cyclic_list_hdrs} ${cyclic_list_srcs})
@@ -35,8 +37,12 @@ add_library(polynoms ${polynoms_srcs} ${polynoms_hdrs})
 target_include_directories(polynoms PUBLIC include/polynoms)
 target_link_libraries(polynoms PUBLIC cyclic_list)
 
+add_library(trans ${trans_hdrs} ${trans_srcs})
+target_include_directories(trans PUBLIC include/trans)
+target_link_libraries(trans PUBLIC polynoms)
+
 add_executable(main ${main_srcs})
-target_link_libraries(main PRIVATE cyclic_list polynoms map tree hash)
+target_link_libraries(main PRIVATE cyclic_list polynoms map tree hash trans)
 
 include(CTest)
 enable_testing()
@@ -72,7 +78,7 @@ if (BUILD_TESTING)
 	
 	add_executable(all_test ${main_tests_file} ${cyclic_list_tests_files} ${polynoms_tests_files} ${map_tests_files} ${tree_tests_files} ${hash_tests_files})
 
-	target_link_libraries(all_test PRIVATE gtest cyclic_list polynoms map tree hash) 
+	target_link_libraries(all_test PRIVATE gtest cyclic_list polynoms map tree hash trans) 
 
 else()
 	message(STATUS "Skipping tests")

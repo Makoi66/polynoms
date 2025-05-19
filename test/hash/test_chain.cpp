@@ -161,7 +161,6 @@ TEST(ChainHashSuite, EraseReturnsCorrectIterator) {
     ht_custom_hash.insert(3, 30);
 
     auto it = ht_custom_hash.erase(2);
-    std::cout << "jopa" << std::endl;
     ASSERT_NE(it, ht_custom_hash.end());
     EXPECT_EQ(it->first, 3);
     EXPECT_EQ(it->second, 30);
